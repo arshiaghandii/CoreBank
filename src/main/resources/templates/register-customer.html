@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بانک تجارت | افتتاح حساب دیجیتال</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/misc/Farsi-Digits/font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --tejarat-navy: #003B73;
+            --tejarat-blue: #0072bc;
+            --tejarat-gold: #FDB913;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --input-bg: #f3f6f9;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Dynamic Background Shapes --- */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 10s infinite ease-in-out;
+        }
+        .shape-1 { width: 400px; height: 400px; background: rgba(0, 59, 115, 0.2); top: -100px; right: -50px; }
+        .shape-2 { width: 300px; height: 300px; background: rgba(253, 185, 19, 0.15); bottom: -50px; left: -50px; animation-delay: 2s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* --- Main Container --- */
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .branding-section {
+            flex: 1;
+            min-width: 350px;
+            background: linear-gradient(150deg, var(--tejarat-navy), #00254a);
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-logo { font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 15px; z-index: 2; }
+        .brand-content { z-index: 2; margin-top: 40px; }
+        .trust-badges { display: flex; gap: 20px; margin-top: 30px; }
+        .badge-item { background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 15px; font-size: 0.85rem; backdrop-filter: blur(5px); }
+
+        .form-section { flex: 1.4; padding: 50px; background: white; min-width: 350px; }
+        .form-header { margin-bottom: 35px; }
+
+        /* --- Inputs & Validation --- */
+        .modern-group { position: relative; margin-bottom: 25px; }
+
+        .modern-input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            font-size: 1rem;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .modern-input:focus { outline: none; background: #fff; border-color: var(--tejarat-blue); }
+
+
+        .modern-input.is-invalid {
+            border-color: #dc3545;
+            background-image: none; /* حذف آیکون پیش‌فرض بوت‌استرپ */
+        }
+
+        .invalid-feedback {
+            display: block; /* نمایش خطا */
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-top: 5px;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .input-icon { position: absolute; left: 20px; top: 20px; color: #adb5bd; font-size: 1.2rem; }
+        .modern-label { position: absolute; right: 15px; top: 18px; color: #6c757d; pointer-events: none; transition: 0.3s; font-size: 0.95rem; }
+
+        .modern-input:focus ~ .modern-label,
+        .modern-input:not(:placeholder-shown) ~ .modern-label {
+            top: -10px; right: 10px; background: white; font-size: 0.8rem; color: var(--tejarat-blue); padding: 0 5px; font-weight: 600;
+        }
+
+        .btn-tejarat {
+            background: linear-gradient(90deg, var(--tejarat-navy) 0%, var(--tejarat-blue) 100%);
+            color: white; border: none; padding: 16px; border-radius: 16px; width: 100%;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .btn-tejarat:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0, 59, 115, 0.3); }
+
+        .custom-alert { background: #e3f2fd; border-right: 4px solid var(--tejarat-blue); color: var(--tejarat-navy); padding: 15px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; }
+
+        /* Alert Error General */
+        .alert-error { background: #f8d7da; border-right: 4px solid #dc3545; color: #842029; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+
+    </style>
+</head>
+<body>
+
+<div class="bg-shape shape-1"></div>
+<div class="bg-shape shape-2"></div>
+
+<div class="main-container animate__animated animate__fadeIn">
+
+    <div class="branding-section">
+        <div class="brand-logo">
+            <i class="bi bi-bank2" style="color: var(--tejarat-gold);"></i>
+            <span>بانک تجارت</span>
+        </div>
+        <div class="brand-content">
+            <h1>آینده بانکداری<br><span style="color: var(--tejarat-gold);">همینجاست.</span></h1>
+            <p>سامانه یکپارچه Core Banking.<br>ثبت نام امن و سریع.</p>
+            <div class="trust-badges">
+                <div class="badge-item"><i class="bi bi-shield-lock-fill text-warning"></i> امنیت SSL</div>
+                <div class="badge-item"><i class="bi bi-check-circle-fill text-warning"></i> نظارت مرکزی</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-header">
+            <h3>تکمیل اطلاعات مشتری</h3>
+            <p>لطفاً اطلاعات را با دقت وارد نمایید. فیلدهای ستاره‌دار الزامی هستند.</p>
+        </div>
+
+        <div th:if="${param.success}" class="custom-alert animate__animated animate__headShake">
+            <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+            <div><strong>عملیات موفق!</strong> مشتری جدید در سیستم ثبت گردید.</div>
+        </div>
+
+        <form th:action="@{/customers/register}" th:object="${customer}" method="post">
+
+            <div th:if="${#fields.hasGlobalErrors()}" class="alert-error animate__animated animate__shakeX">
+                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="modern-group">
+                        <input type="text"
+                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+                               class="modern-input" id="firstName" th:field="*{firstName}" placeholder=" ">
+                        <label for="firstName" class="modern-label">نام</label>
+                        <i class="bi bi-person input-icon"></i>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="modern-group">
+                        <input type="text"
+                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+                               class="modern-input" id="lastName" th:field="*{lastName}" placeholder=" ">
+                        <label for="lastName" class="modern-label">نام خانوادگی</label>
+                        <i class="bi bi-person-vcard input-icon"></i>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-group">
+                <input type="number"
+                       th:classappend="${#fields.hasErrors('nationalId')} ? 'is-invalid' : ''"
+                       class="modern-input" id="nationalId" th:field="*{nationalId}" placeholder=" " maxlength="10">
+                <label for="nationalId" class="modern-label">کد ملی (۱۰ رقم)</label>
+                <i class="bi bi-card-heading input-icon"></i>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('nationalId')}" th:errors="*{nationalId}"></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="modern-group">
+                        <input type="tel"
+                               th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''"
+                               class="modern-input" id="phoneNumber" th:field="*{phoneNumber}" placeholder=" ">
+                        <label for="phoneNumber" class="modern-label">شماره همراه</label>
+                        <i class="bi bi-phone input-icon"></i>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="modern-group">
+                        <input type="date"
+                               th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid' : ''"
+                               class="modern-input" id="birthDate" th:field="*{birthDate}" placeholder=" ">
+                        <label for="birthDate" class="modern-label" style="top: -10px; right: 10px; background: white; font-size: 0.8rem; color: var(--tejarat-blue);">تاریخ تولد</label>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-group">
+                <textarea
+                        th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''"
+                        class="modern-input" id="address" th:field="*{address}" placeholder=" " style="height: 120px; border-radius: 20px;"></textarea>
+                <label for="address" class="modern-label">آدرس کامل پستی</label>
+                <i class="bi bi-geo-alt input-icon" style="top: 30px;"></i>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+            </div>
+
+            <button type="submit" class="btn-tejarat">
+                ثبت نهایی و افتتاح حساب
+                <i class="bi bi-arrow-left me-2"></i>
+            </button>
+
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+version: '3.8'  # نسخه فایل کامپوز
+
+services:
+  # سرویس 1: دیتابیس پستگرس
+  postgres:
+    image: postgres:18-alpine  # نسخه 18 که خواسته بودی
+    container_name: corebank-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: corebank     # هم نام با چیزی که تو application.properties داری
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5433:5432"  # پورت بیرون : پورت داخل
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # برای اینکه دیتا با ریست شدن نپره
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+  # سرویس 2: ردیس
+  redis:
+    image: redis:7.4-alpine
+    container_name: corebank-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: corebank-keycloak
+    command: start-dev --import-realm # حالت توسعه (سبک و سریع)
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080" # پورت 8080 کی‌کلوک رو مپ می‌کنیم به 8180 سیستم خودت (چون 8080 اشغاله)
+    volumes:
+      - ./keycloak-data:/opt/keycloak/data
+
+#-------------------------------------------------------------------------------------
+# سرویس 3: اپلیکیشن خودمون
+#  app:
+#    build: .  # یعنی برو از همین پوشه جاری (که Dockerfile توشه) ایمیج روبساز
+#    container_name : corebank-app
+#    depends_on:
+#      - postgres # یعنی صبر کن اول دیتابیس و ردیس بیان بالا
+#      - redis
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      # نکته حیاتی تیم‌لیدی:
+#      # توی داکر، localhost معنی نداره. باید اسم سرویس رو صدا بزنی.
+#      # اینجا تنظیمات application.properties رو اور-راید (Override) می‌کنیم.
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/corebank
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: 123456
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+#      SPRING_DATA_REDIS_HOST: redis
+#      SPRING_DATA_REDIS_PORT: 6379
+#-------------------------------------------------------------------------------------
+
+# تعریف والیوم‌ها برای ذخیره دائمی دیتا
+volumes:
+  postgres_data:
