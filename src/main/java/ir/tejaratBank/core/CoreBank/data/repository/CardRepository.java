@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
 
-    boolean findByCardNumber(String cardNumber);
+    boolean existsByCardNumber(String cardNumber);
 
     // پیدا کردن تمام کارت‌های متصل به یک حساب خاص
     List<Card> findByAccountId(Long accountId);

@@ -34,3 +34,6 @@ build/
 
 *.db
 keycloak-data/
+
+backup.sql
+test

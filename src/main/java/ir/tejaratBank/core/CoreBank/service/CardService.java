@@ -56,7 +56,7 @@ public class CardService {
 
             String checkDigit = BankingUtils.calculateCheckDigit(baseNumber);
             findCardNumber = baseNumber + checkDigit;
-        } while (cardRepository.findByCardNumber(findCardNumber));
+        } while (cardRepository.existsByCardNumber(findCardNumber));
 
         return findCardNumber;
     }
