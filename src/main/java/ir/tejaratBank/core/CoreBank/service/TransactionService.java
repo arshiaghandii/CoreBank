@@ -8,6 +8,7 @@ import ir.tejaratBank.core.CoreBank.data.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,44 +17,24 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
 
-
     public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
-
     }
+
 
     @Transactional
     public void deposit(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
                 .orElseThrow(() -> new RuntimeException("account not found"));
-        account.setBalance(account.getBalance().add(request.getAmount()));
-        accountRepository.save(account);
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setAmount(request.getAmount());
-        transaction.setType(Transaction.TransactionType.DEPOSIT);
-        transaction.setTimestamp(LocalDateTime.now());
-        transaction.setDescription(request.getDescription());
-        transactionRepository.save(transaction);
+        doDeposit(account, request.getAmount(), request.getDescription());
     }
 
     @Transactional
     public void withdraw(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
                 .orElseThrow(() -> new RuntimeException("account not found"));
-        if (account.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds.");
-        }
-        account.setBalance(account.getBalance().subtract(request.getAmount()));
-        accountRepository.save(account);
-
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setAmount(request.getAmount());
-        transaction.setType(Transaction.TransactionType.WITHDRAW);
-        transaction.setTimestamp(LocalDateTime.now());
-        transactionRepository.save(transaction);
+        doWithdraw(account, request.getAmount(), request.getDescription());
     }
 
     @Transactional
@@ -65,26 +46,48 @@ public class TransactionService {
             throw new RuntimeException("source and target accounts are the same.");
         }
 
-        if (sourceId < targetId) {
-            accountRepository.findByIdWithLock(sourceId); // قفل اول
-            accountRepository.findByIdWithLock(targetId); // قفل دوم
-        } else {
-            accountRepository.findByIdWithLock(targetId); // قفل اول
-            accountRepository.findByIdWithLock(sourceId); // قفل دوم
+        //  (Deadlock Prevention)
+        Long firstId = Math.min(sourceId, targetId);
+        Long secondId = Math.max(sourceId, targetId);
+
+
+        Account firstAccount = accountRepository.findByIdWithLock(firstId)
+                .orElseThrow(() -> new RuntimeException("First account not found"));
+        Account secondAccount = accountRepository.findByIdWithLock(secondId)
+                .orElseThrow(() -> new RuntimeException("Second account not found"));
+
+        Account sourceAccount = sourceId.equals(firstId) ? firstAccount : secondAccount;
+        Account targetAccount = targetId.equals(firstId) ? firstAccount : secondAccount;
+        doWithdraw(sourceAccount, request.getAmount(), request.getDescription());
+        doDeposit(targetAccount, request.getAmount(), "Transfer from " + sourceAccount.getAccountNumber());
+    }
+
+    private void doDeposit(Account account, BigDecimal amount, String description) {
+        account.setBalance(account.getBalance().add(amount));
+
+        saveTransaction(account, amount, Transaction.TransactionType.DEPOSIT, description);
+    }
+
+    private void doWithdraw(Account account, BigDecimal amount, String description) {
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds.");
         }
+        account.setBalance(account.getBalance().subtract(amount));
 
+        saveTransaction(account, amount, Transaction.TransactionType.WITHDRAW, description);
+    }
 
-        this.withdraw(request);
-        TransactionRequest depositRequest = new TransactionRequest();
-        depositRequest.setAccountId(request.getTargetAccountId());
-        depositRequest.setAmount(request.getAmount());
-        depositRequest.setDescription("Transfer from account " + request.getAccountId());
-        this.deposit(depositRequest);
-
+    private void saveTransaction(Account account, BigDecimal amount, Transaction.TransactionType type, String description) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
+        transaction.setType(type);
+        transaction.setTimestamp(LocalDateTime.now());
+        transaction.setDescription(description);
+        transactionRepository.save(transaction);
     }
 
     public List<Transaction> getAccountTransactions(Long accountId) {
-
         if (!accountRepository.existsById(accountId)) {
             throw new RuntimeException("Account " + accountId + " not found");
         }
