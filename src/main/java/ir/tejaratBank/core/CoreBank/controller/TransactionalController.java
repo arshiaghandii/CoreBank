@@ -28,12 +28,8 @@ public class TransactionalController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdraw(@Valid @RequestBody TransactionRequest request) {
-        try {
-            transactionService.withdraw(request);
-            return ResponseEntity.ok(Map.of("message", "Withdrawal completed successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        transactionService.withdraw(request);
+        return ResponseEntity.ok(Map.of("message", "Withdrawal completed successfully"));
     }
 
     @PostMapping("/transfer")

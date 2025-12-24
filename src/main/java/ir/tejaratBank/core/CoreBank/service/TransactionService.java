@@ -5,6 +5,8 @@ import ir.tejaratBank.core.CoreBank.data.model.Account;
 import ir.tejaratBank.core.CoreBank.data.model.Transaction;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.TransactionRepository;
+import ir.tejaratBank.core.CoreBank.exception.InsufficientBalanceException;
+import ir.tejaratBank.core.CoreBank.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +28,14 @@ public class TransactionService {
     @Transactional
     public void deposit(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
-                .orElseThrow(() -> new RuntimeException("account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("حساب با شناسه مورد نظر یافت نشد."));
         doDeposit(account, request.getAmount(), request.getDescription());
     }
 
     @Transactional
     public void withdraw(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
-                .orElseThrow(() -> new RuntimeException("account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("حساب با شناسه مورد نظر یافت نشد."));
         doWithdraw(account, request.getAmount(), request.getDescription());
     }
 
@@ -70,7 +72,8 @@ public class TransactionService {
 
     private void doWithdraw(Account account, BigDecimal amount, String description) {
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds.");
+            // قبلاً: throw new RuntimeException("Insufficient funds.");
+            throw new InsufficientBalanceException("موجودی حساب کافی نیست.");
         }
         account.setBalance(account.getBalance().subtract(amount));
 

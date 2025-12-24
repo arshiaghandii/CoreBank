@@ -6,6 +6,8 @@ import ir.tejaratBank.core.CoreBank.data.model.Loan;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.CustomerRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.LoanRepository;
+import ir.tejaratBank.core.CoreBank.exception.BusinessLogicException;
+import ir.tejaratBank.core.CoreBank.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -68,7 +70,10 @@ public class LoanService {
     public Loan repayLoan(Long loanId, Long sourceAccountId, BigDecimal amount) {
         // ۱. پیدا کردن وام
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new RuntimeException("وام یافت نشد."));
+                .orElseThrow(() -> new ResourceNotFoundException("وام یافت نشد."));
+
+        if (loan.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessLogicException("این وام قبلاً تسویه شده است.");}
 
         // ۲. بررسی اینکه وام تسویه شده یا نه
         if (loan.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0) {
