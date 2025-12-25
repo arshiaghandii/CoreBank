@@ -47,13 +47,10 @@ public class LoanService {
         BigDecimal repaymentAmount = amount.multiply(interestFactor);
         loan.setRemainingAmount(repaymentAmount);
 
-        // --- اصلاح خط تولید شماره وام ---
-        // تولید یک عدد ۱۵ رقمی تصادفی که با پیشوند L- جمعاً ۱۷ کاراکتر می‌شود (کمتر از ۲۰)
         long randomNum = ThreadLocalRandom.current().nextLong(100000000000000L, 999999999999999L);
         String loanNumber = "L-" + randomNum;
 
         loan.setLoanNumber(loanNumber);
-        // -------------------------------
 
         return loanRepository.save(loan);
     }
@@ -80,25 +77,20 @@ public class LoanService {
             throw new RuntimeException("این وام قبلاً تسویه شده است.");
         }
 
-        // ۳. برداشت وجه از حساب مشتری (با استفاده از سرویس تراکنش موجود)
-        // ما یک ریکوئست برداشت می‌سازیم و به سرویس تراکنش می‌دهیم
         TransactionRequest withdrawRequest = new TransactionRequest();
         withdrawRequest.setAccountId(sourceAccountId);
         withdrawRequest.setAmount(amount);
         withdrawRequest.setDescription("Payment for Loan: " + loan.getLoanNumber());
 
-        // این متد خودش چک می‌کند موجودی کافی است یا نه و پول را کم می‌کند
         transactionService.withdraw(withdrawRequest);
 
-        // ۴. آپدیت اطلاعات وام
         BigDecimal newRemaining = loan.getRemainingAmount().subtract(amount);
-        // اگر بدهی منفی شد، یعنی بیشتر از حد پرداخت کرده (صفرش می‌کنیم)
         if (newRemaining.compareTo(BigDecimal.ZERO) < 0) {
             newRemaining = BigDecimal.ZERO;
         }
 
         loan.setRemainingAmount(newRemaining);
-        loan.setPaidInstallments(loan.getPaidInstallments() + 1); // تعداد اقساط پرداخت شده یکی زیاد می‌شود
+        loan.setPaidInstallments(loan.getPaidInstallments() + 1);
 
         return loanRepository.save(loan);
     }
