@@ -72,8 +72,7 @@ public class TransactionService {
 
     private void doWithdraw(Account account, BigDecimal amount, String description) {
         if (account.getBalance().compareTo(amount) < 0) {
-            // قبلاً: throw new RuntimeException("Insufficient funds.");
-            throw new InsufficientBalanceException("موجودی حساب کافی نیست.");
+            throw new InsufficientBalanceException("Insufficient account balance.");
         }
         account.setBalance(account.getBalance().subtract(amount));
 

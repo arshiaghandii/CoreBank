@@ -20,7 +20,7 @@ public class AuthController {
         this.optService = optService;
         this.customerRepository = customerRepository;
     }
-    @PostMapping("/send-otp") // این خط جا افتاده بود
+    @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestParam String customerId) {
         if (!customerRepository.existsByNationalId(customerId)) {
             return ResponseEntity.status(404)

@@ -3,27 +3,29 @@ package ir.tejaratBank.core.CoreBank.service;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class OptService {
 
     private final StringRedisTemplate redisTemplate;
-
-    // پیشوند کلیدها در ردیس
+    private static final SecureRandom secureRandom = new SecureRandom();
     private static final String OTP_PREFIX = "OTP:";
     private static final Duration OTP_TTL = Duration.ofMinutes(2);
+
 
     public OptService(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
 
-
     public String generateOtp(String nationalId) {
-        String otpCode = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 999999));
         String key = OTP_PREFIX + nationalId;
+
+
+        int randomInt = secureRandom.nextInt(1000000);
+        String otpCode = String.format("%06d", randomInt);
 
         redisTemplate.opsForValue().set(key, otpCode, OTP_TTL);
 

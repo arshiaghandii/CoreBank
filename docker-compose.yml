@@ -23,6 +23,17 @@ services:
     ports:
       - "6379:6379"
 
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: corebank-redis-insight
+    restart: always
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    volumes:
+      - redis_insight_data:/data
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
     container_name: corebank-keycloak
@@ -60,3 +71,4 @@ services:
 # تعریف والیوم‌ها برای ذخیره دائمی دیتا
 volumes:
   postgres_data:
+  redis_insight_data:
