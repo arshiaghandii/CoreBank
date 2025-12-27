@@ -1,4 +1,4 @@
-package ir.tejaratBank.core.CoreBank;
+package ir.tejaratBank.core.CoreBank.utils;
 
 import java.math.BigInteger;
 

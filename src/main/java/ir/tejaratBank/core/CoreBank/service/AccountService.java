@@ -1,6 +1,6 @@
 package ir.tejaratBank.core.CoreBank.service;
 
-import ir.tejaratBank.core.CoreBank.BankingUtils;
+import ir.tejaratBank.core.CoreBank.utils.BankingUtils;
 import ir.tejaratBank.core.CoreBank.data.model.Account;
 import ir.tejaratBank.core.CoreBank.data.model.Customer;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;

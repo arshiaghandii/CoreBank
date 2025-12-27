@@ -7,6 +7,7 @@ import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.TransactionRepository;
 import ir.tejaratBank.core.CoreBank.exception.InsufficientBalanceException;
 import ir.tejaratBank.core.CoreBank.exception.ResourceNotFoundException;
+import ir.tejaratBank.core.CoreBank.utils.GlobalLogger;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +72,13 @@ public class TransactionService {
     }
 
     private void doWithdraw(Account account, BigDecimal amount, String description) {
+
+        GlobalLogger.debug(TransactionService.class,"Processing withdrawal -> AccountID: " + account.getId() +
+                " | Balance: " + account.getBalance() +
+                " | Amount: " + amount);
+
         if (account.getBalance().compareTo(amount) < 0) {
+            GlobalLogger.error(TransactionService.class, "Insufficient funds for AccountID: " + account.getId(), null);
             throw new InsufficientBalanceException("Insufficient account balance.");
         }
         account.setBalance(account.getBalance().subtract(amount));

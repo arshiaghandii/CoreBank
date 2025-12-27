@@ -27,7 +27,6 @@ public class ReportService {
     public Map<String, Object> getGeneralReport() {
         Map<String, Object> report = new HashMap<>();
         report.put("totalCustomers", customerRepository.count());
-        // کل نقدینگی بانک (جمع موجودی‌ها)
         BigDecimal liquidity = accountRepository.getTotalBankLiquidity();
         report.put("totalLiquidity", liquidity != null ? liquidity : BigDecimal.ZERO);
         BigDecimal totalLoans = loanRepository.getTotalLoansAmount();
