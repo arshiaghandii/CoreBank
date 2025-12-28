@@ -1,9 +1,10 @@
 package ir.tejaratBank.core.CoreBank.data.model;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-//I miss you jojo
+
 @Table(name = "accounts")
 @Entity
 public class Account {
@@ -29,6 +30,11 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
+    @Version
+    @Column(name = "opt_lock_version")
+    private Long version;
+
+
     @Column(name = "open_date")
     private LocalDateTime openDate;
 
@@ -36,35 +42,84 @@ public class Account {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    public enum AccountType { SAVINGS, CURRENT, DEPOSIT }
-    public enum AccountStatus { ACTIVE, BLOCKED, CLOSED }
+    public enum AccountType {SAVINGS, CURRENT, DEPOSIT}
+
+    public enum AccountStatus {ACTIVE, BLOCKED, CLOSED}
 
     public Account() {
         this.openDate = LocalDateTime.now();
         this.status = AccountStatus.ACTIVE;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getAccountNumber() { return accountNumber; }
-    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getIban() { return iban; }
-    public void setIban(String iban) { this.iban = iban; }
+    public String getAccountNumber() {
+        return accountNumber;
+    }
 
-    public BigDecimal getBalance() { return balance; }
-    public void setBalance(BigDecimal balance) { this.balance = balance; }
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
 
-    public AccountType getAccountType() { return accountType; }
-    public void setAccountType(AccountType accountType) { this.accountType = accountType; }
+    public String getIban() {
+        return iban;
+    }
 
-    public AccountStatus getStatus() { return status; }
-    public void setStatus(AccountStatus status) { this.status = status; }
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
 
-    public LocalDateTime getOpenDate() { return openDate; }
-    public void setOpenDate(LocalDateTime openDate) { this.openDate = openDate; }
+    public BigDecimal getBalance() {
+        return balance;
+    }
 
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getOpenDate() {
+        return openDate;
+    }
+
+    public void setOpenDate(LocalDateTime openDate) {
+        this.openDate = openDate;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }

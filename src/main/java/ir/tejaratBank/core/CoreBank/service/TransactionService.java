@@ -9,6 +9,9 @@ import ir.tejaratBank.core.CoreBank.exception.InsufficientBalanceException;
 import ir.tejaratBank.core.CoreBank.exception.ResourceNotFoundException;
 import ir.tejaratBank.core.CoreBank.utils.GlobalLogger;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +30,7 @@ public class TransactionService {
 
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class,maxAttempts = 3,backoff = @Backoff(delay = 50))
     public void deposit(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("حساب با شناسه مورد نظر یافت نشد."));
@@ -34,6 +38,7 @@ public class TransactionService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 50))
     public void withdraw(TransactionRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("حساب با شناسه مورد نظر یافت نشد."));
@@ -41,6 +46,7 @@ public class TransactionService {
     }
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3, backoff = @Backoff(delay = 100))
     public void transfer(TransactionRequest request) {
         Long sourceId = request.getAccountId();
         Long targetId = request.getTargetAccountId();
@@ -54,9 +60,9 @@ public class TransactionService {
         Long secondId = Math.max(sourceId, targetId);
 
 
-        Account firstAccount = accountRepository.findByIdWithLock(firstId)
+        Account firstAccount = accountRepository.findById(firstId)
                 .orElseThrow(() -> new RuntimeException("First account not found"));
-        Account secondAccount = accountRepository.findByIdWithLock(secondId)
+        Account secondAccount = accountRepository.findById(secondId)
                 .orElseThrow(() -> new RuntimeException("Second account not found"));
 
         Account sourceAccount = sourceId.equals(firstId) ? firstAccount : secondAccount;
