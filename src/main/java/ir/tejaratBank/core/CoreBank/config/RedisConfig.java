@@ -1,8 +1,5 @@
 package ir.tejaratBank.core.CoreBank.config;
 
-// --- تغییر مهم برای Spring Boot 4 & Jackson 3 ---
-import tools.jackson.databind.ObjectMapper; // <--- به جای com.fasterxml... اینو بزن
-// -----------------------------------------------
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +10,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 

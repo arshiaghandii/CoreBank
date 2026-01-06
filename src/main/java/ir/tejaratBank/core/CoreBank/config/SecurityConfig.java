@@ -1,11 +1,12 @@
 package ir.tejaratBank.core.CoreBank.config;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-// import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // فعلا کامنت شده طبق خواسته شما
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,28 +25,32 @@ import java.util.stream.Collectors;
 //@EnableMethodSecurity
 public class SecurityConfig {
 
-    // مقدار پیش‌فرض true است تا اگر در فایل پراپرتیز نبود، امنیت فعال بماند
     @Value("${app.security.enabled:true}")
     private boolean securityEnabled;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception  { // نکته: throws Exception اضافه شد
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception  {
         if (!securityEnabled) {
             http.csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
             return http.build();
         }
 
+
         // کانفیگ اصلی برای حالت پروداکشن
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()   // permission for all
                         .requestMatchers("/customers/register").permitAll()
                         .requestMatchers("/api/customers/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
+
+                // token-based with keycloak
+                // just check token ( login staff with keycloak )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 );

@@ -1,11 +1,13 @@
 package ir.tejaratBank.core.CoreBank.service;
 
+import ir.tejaratBank.core.CoreBank.exception.ResourceNotFoundException;
 import ir.tejaratBank.core.CoreBank.utils.BankingUtils;
 import ir.tejaratBank.core.CoreBank.data.model.Account;
 import ir.tejaratBank.core.CoreBank.data.model.Customer;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +28,21 @@ public class AccountService {
     public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
+    }
+
+    @Cacheable(value = "account", key = "#accountNumber")
+    public Account getAccountByNumber(String accountNumber) {
+        System.out.println("Fetching from database for : " + accountNumber);
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+    }
+
+    @Transactional
+    @Cacheable(value = "account", key = "#account.accountNumber")
+    public void update(Account account) {
+        accountRepository.save(account);
+        System.out.println("Cache Evicted for : " + account.getAccountNumber());
     }
 
     @Transactional
