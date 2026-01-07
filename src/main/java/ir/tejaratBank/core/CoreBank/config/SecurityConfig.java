@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${app.security.enabled:true}")
@@ -37,7 +37,6 @@ public class SecurityConfig {
         }
 
 
-        // کانفیگ اصلی برای حالت پروداکشن
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -45,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()   // permission for all
                         .requestMatchers("/customers/register").permitAll()
                         .requestMatchers("/api/customers/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
@@ -63,6 +63,9 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(new KeycloakRealmRoleConverter());
         return converter;
     }
+
+
+
 
     static class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
         @Override

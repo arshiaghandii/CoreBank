@@ -78,8 +78,19 @@ public class AuthController {
             ));
 
         } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
+            // === اصلاح شده: چاپ دلیل اصلی خطا از سمت Keycloak ===
+            String keycloakError = e.getResponseBodyAsString();
+            System.err.println("🔥 Keycloak 401 Error Body: " + keycloakError);
+
+            return ResponseEntity.status(401).body(Map.of(
+                    "message", "Login Failed",
+                    "details", keycloakError // این را به فرانت/پستمن برمی‌گردانیم تا ببینیم
+            ));
+        } catch (HttpClientErrorException e) {
+            System.err.println("Keycloak Error: " + e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAs(Map.class));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "Internal Login Error"));
         }
     }

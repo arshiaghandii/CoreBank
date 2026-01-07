@@ -10,8 +10,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tools.jackson.databind.ObjectMapper;
 import java.time.Duration;
 
 @Configuration

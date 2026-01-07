@@ -12,46 +12,56 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 
+import java.time.LocalDate;
+
 @SpringBootApplication
 @EnableRetry
 @EnableCaching
 public class CoreBankApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CoreBankApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CoreBankApplication.class, args);
+    }
 
     @Bean
     public CommandLineRunner testAccountService(AccountService accountService, CustomerRepository customerRepository) {
         return args -> {
-            // ۱. پیدا کردن مشتری (همونی که توی دیتابیس داریم)
-            // فرض بر اینه که مشتری با کد ملی "1234567890" از قبل ساخته شده
-            Customer customer = customerRepository.findAll().stream()
-                    .filter(c -> "1234567890".equals(c.getNationalId()))
-                    .findFirst()
+            String targetNationalId = "1234567890";
+
+            // ۱. تلاش برای پیدا کردن مشتری
+            Customer customer = customerRepository.findByNationalId(targetNationalId)
                     .orElse(null);
 
-            if (customer != null) {
-                System.out.println("🦅 Customer Found: " + customer.getFirstName() + " " + customer.getLastName());
+            // ۲. اگر نبود، بسازش (Self-Healing Logic)
+            if (customer == null) {
+                System.out.println("⚠️ Customer not found. Creating a new one...");
+                Customer newCustomer = new Customer();
+                newCustomer.setFirstName("Arshia");
+                newCustomer.setLastName("Ghandi");
+                newCustomer.setNationalId(targetNationalId);
+                newCustomer.setPhoneNumber("09120000000");
+                newCustomer.setBirthDate(LocalDate.of(1384, 1, 1));
 
-                // ۲. افتتاح حساب جدید با سرویس (تست لاجیک تولید شماره حساب)
-                try {
-                    Account newAccount = accountService.createAccount(customer.getId(), Account.AccountType.SAVINGS);
-
-                    // ۳. نمایش خروجی برای تأیید مهندس
-                    System.out.println("✅ New Account Created via Service:");
-                    System.out.println("   -------------------------------------------------");
-                    System.out.println("   👤 Owner: " + newAccount.getCustomer().getFirstName());
-                    System.out.println("   🔢 Account Type: " + newAccount.getAccountType());
-                    System.out.println("   💳 Smart Account Num: " + newAccount.getAccountNumber());
-                    System.out.println("   🌍 Generated IBAN:    " + newAccount.getIban());
-                    System.out.println("   -------------------------------------------------");
-
-                } catch (Exception e) {
-                    System.err.println("❌ Error creating account: " + e.getMessage());
-                }
+                customer = customerRepository.save(newCustomer); // <--- ذخیره در دیتابیس
+                System.out.println("✅ Customer Created and Saved: " + customer.getId());
             } else {
-                System.out.println("⚠️ Warning: No customer found to test AccountService!");
+                System.out.println("🦅 Customer Found: " + customer.getFirstName() + " " + customer.getLastName());
+            }
+
+            // ۳. حالا که مطمئنیم مشتری هست، حساب باز کن
+            try {
+                Account newAccount = accountService.createAccount(customer.getId(), Account.AccountType.SAVINGS);
+
+                System.out.println("✅ New Account Created via Service:");
+                System.out.println("   -------------------------------------------------");
+                System.out.println("   👤 Owner: " + newAccount.getCustomer().getFirstName());
+                System.out.println("   🔢 Account Type: " + newAccount.getAccountType());
+                System.out.println("   💳 Smart Account Num: " + newAccount.getAccountNumber());
+                System.out.println("   🌍 Generated IBAN:    " + newAccount.getIban());
+                System.out.println("   -------------------------------------------------");
+
+            } catch (Exception e) {
+                System.err.println("❌ Error creating account: " + e.getMessage());
             }
         };
     }
