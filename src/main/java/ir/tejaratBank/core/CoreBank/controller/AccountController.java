@@ -3,6 +3,7 @@ package ir.tejaratBank.core.CoreBank.controller;
 import ir.tejaratBank.core.CoreBank.data.model.Account;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.service.AccountService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,14 +12,12 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/accounts")
 public class AccountController {
 
     private final AccountService accountService;
 
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")

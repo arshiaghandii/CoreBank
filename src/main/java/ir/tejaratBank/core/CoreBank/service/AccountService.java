@@ -7,13 +7,14 @@ import ir.tejaratBank.core.CoreBank.data.model.Customer;
 import ir.tejaratBank.core.CoreBank.data.repository.AccountRepository;
 import ir.tejaratBank.core.CoreBank.data.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;
 
-
+@RequiredArgsConstructor
 @Service
 public class AccountService {
 
@@ -25,10 +26,7 @@ public class AccountService {
     private static final String TYPE_CURRENT = "002";     // -> JARI
     private static final String TYPE_DEPOSIT = "003";     // -> GHARZOL HASANE
 
-    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
-        this.accountRepository = accountRepository;
-        this.customerRepository = customerRepository;
-    }
+
 
     @Cacheable(value = "account", key = "#accountNumber")
     public Account getAccountByNumber(String accountNumber) {
