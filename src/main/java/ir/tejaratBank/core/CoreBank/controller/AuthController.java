@@ -3,6 +3,7 @@ package ir.tejaratBank.core.CoreBank.controller;
 import ir.tejaratBank.core.CoreBank.data.model.Customer;
 import ir.tejaratBank.core.CoreBank.data.repository.CustomerRepository;
 import ir.tejaratBank.core.CoreBank.service.OptService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -125,10 +127,7 @@ public class AuthController {
         ));
     }
 
-    /**
-     * مرحله ۳: تایید نهایی
-     * بدون نیاز به دیتابیس Postgres
-     */
+
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String loginId, @RequestParam String otp) {
         String sessionData = redisTemplate.opsForValue().get(SESSION_DATA_PREFIX + loginId);
