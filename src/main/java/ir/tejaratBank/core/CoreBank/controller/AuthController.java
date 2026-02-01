@@ -37,12 +37,7 @@ public class AuthController {
     private static final String SESSION_DATA_PREFIX = "auth:session:";
     private static final String KC_TOKEN_PREFIX = "auth:kc_token:";
 
-    public AuthController(OptService optService, StringRedisTemplate redisTemplate, CustomerRepository customerRepository) {
-        this.optService = optService;
-        this.redisTemplate = redisTemplate;
-        this.customerRepository = customerRepository;
-        this.restTemplate = new RestTemplate();
-    }
+
 
     /**
      * مرحله ۱: لاگین اولیه
